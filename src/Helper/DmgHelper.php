@@ -17,4 +17,8 @@ class DmgHelper
     {
         return random_int($minDmg, $maxDmg);
     }
+    public static function calculateDamagewithlevel(int $minDmg, int $maxDmg, int $level): int
+    {
+        return random_int($minDmg + $level, $maxDmg + $level);
+    }
 }

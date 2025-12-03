@@ -43,20 +43,20 @@
             {% endif %}
         </div>
 
-{#        <div style="min-width:320px;">#}
-{#            <h3>Log</h3>#}
-{#            <ol>#}
-{#                {% for row in log %}#}
-{#                    <li>#}
-{#                        {% if row is iterable %}#}
-{#                            {{ row|join(' ') }}#}
-{#                        {% else %}#}
-{#                            {{ row }}#}
-{#                        {% endif %}#}
-{#                    </li>#}
-{#                {% endfor %}#}
-{#            </ol>#}
-{#        </div>#}
+       <div style="min-width:320px;">
+          <h3>Log</h3>
+          <ol>
+               {% for row in log %}
+                   <li>
+                       {% if row is iterable %}
+                            {{ row|join(' ') }}
+                      {% else %}
+                           {{ row }}
+                       {% endif %}
+                   </li>
+               {% endfor %}
+           </ol>
+       </div>
 
     </div>
 {% endblock %}

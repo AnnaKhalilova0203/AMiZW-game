@@ -12,6 +12,7 @@ class Monster
     public function __construct(
         private string $name,
         private int $hp,
+        private int $experience,
     )
     {
         $this->maxHp = $hp;
@@ -33,5 +34,9 @@ class Monster
     public function takeDmg(int $hp): void
     {
         $this->hp -= $hp;
+    }
+    public function getExperience(): int
+    {
+        return $this->experience;
     }
 }

@@ -27,9 +27,10 @@ class GameController extends AbstractController
         if (!$session->has('state')) {
             $this->resetState($session);
         }
-
+$state =  $session->get('state');
         return $this->render('game/index.html.twig', [
-                'state' => $session->get('state')
+                'state' => $state,
+                'log'=>$state-> getLog()
         ]);
     }
 
@@ -50,20 +51,37 @@ class GameController extends AbstractController
 
         switch ($actionName) {
             case ActionType::ATTACK->value:
-                $dmg = DmgHelper::calculateDamage(8,18);
+                $dmg = DmgHelper::calculateDamagewithlevel(8,18,$state->getPlayer()->getLevel());
                 $state->getMonster()->takeDmg($dmg);
+                $state -> addLog(sprintf("gracz zadal %d obrazen", $dmg));
                 break;
 
             case ActionType::HEAL->value:
+                $heal = 30;
+                $state ->getPlayer()->heal($heal);
+                $state -> addLog(sprintf("gracz wyleczyl sie za %d hp", $heal));
                 break;
 
-
+            case ActionType ::HEAVY ->value:
+                $dmg = DmgHelper::calculateDamagewithlevel(14,25,$state->getPlayer()->getLevel());
+                $state->getMonster()->takeDmg($dmg);
+                $state -> addLog(sprintf("gracz zadal %d obrazen", $dmg));
+                break;
+            
+            case ActionType ::RUN ->value:
+                $state -> nextWave();
+                $state -> addLog(sprintf("gracz uciekl z pola bitwy"));
+                break;
             default:
                 // wrong action
                 break;
         }
 
         if ($state->getMonster()->getHp() <= 0) {
+            $state->getPlayer()->addExperience($state->getMonster()->getExperience());
+            if ($state ->getPlayer() ->getExperience() < Player::SCALE_LEVELS[1]){
+                    $state ->getPlayer()->addLevel();
+            }
             $state->nextWave();
             $state->setMonster($this->spawnMonster($state->getWave()));
             $session->set('state', $state);
@@ -73,6 +91,7 @@ class GameController extends AbstractController
 
         if (!$state->isOver()) {
             $monsterDmg = DmgHelper::calculateDamage(6,14);
+            $state -> addLog(sprintf("potwór zadal %d obrazen", $monsterDmg));
             $state->getPlayer()->takeDmg($monsterDmg);
             if ($state->getPlayer()->getHp() <= 0) {
                 $state->getPlayer()->setHp(0);
@@ -94,8 +113,8 @@ class GameController extends AbstractController
     private function resetState(Session $session): void
     {
         $session->set('state', new State(
-            new Player(100),
-            new Monster('Goblin', 50),
+            new Player(100,1,0),
+            new Monster('Goblin', 50,15),
             1,
             0,
             3,
@@ -108,11 +127,11 @@ class GameController extends AbstractController
     private function spawnMonster(int $wave): Monster
     {
         if ($wave % 3 === 0) {
-            return new Monster('BOSS Troll', 120 + ($wave-3)*15);
+            return new Monster('BOSS Troll', 120 + ($wave-3)*15,15*($wave/3));
         }
         if ($wave >= 2) {
-            return new Monster('Ork', 80 + ($wave-2)*12);
+            return new Monster('Ork', 80 + ($wave-2)*12,12*($wave/7));
         }
-        return new Monster('Goblin', 50 + ($wave-1)*10);
+        return new Monster('Goblin', 50 + ($wave-1)*10,10*($wave/10));
     }
 }

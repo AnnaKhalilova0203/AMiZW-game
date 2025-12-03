@@ -15,7 +15,7 @@ class State
         private readonly int $gold,
         private readonly int $healsLeft,
         private bool $over,
-        private readonly array $log)
+        private array $log)
     {
     }
 
@@ -67,5 +67,8 @@ class State
     public function endGame(): void
     {
         $this->over = true;
+    }
+    public function addLog(string$log): void{
+        $this->log[] = $log;
     }
 }
